@@ -6,29 +6,31 @@
 
 这些任务是确保 SDK 具备基本可用性的核心功能。
 
-*   **[ ] 完善项目结构和基础代码 (P0)**
-    *   [ ] 确定并创建核心包结构 (例如 `client`, `models`, `platform`, `auth`, `utils`, `errors`)。
-    *   [ ] 实现 `client.NewClient()` 构造函数，能够根据 `PlatformConfig` 初始化对应的平台处理器。
-    *   [ ] 定义核心的 `PlatformHandler` 接口，包含各模型类型通用的方法签名（例如 `TextGeneration`, `ImageGeneration`, `Embedding`）。
-    *   [ ] 实现基本的错误处理机制和日志记录功能。
+*   **[X] 完善项目结构和基础代码 (P0)**
+    *   [X] 确定并创建核心包结构 (`client`, `models`, `platform`, `auth`, `utils`, `errors`)。
+    *   [X] 实现 `client.NewClient()` 构造函数 (初步完成，Handler 初始化待具体平台实现)。
+    *   [X] 定义核心的 `PlatformHandler` 接口。
+    *   [X] 实现基本的错误处理机制 (`errors` 包) 和日志记录功能 (集成到 `Client`)。
+    *   [X] 创建 `auth` 包的基础结构/占位符 (例如 `auth/auth.go`)。
+    *   [X] 创建 `utils` 包的基础结构/占位符 (例如 `utils/utils.go`)。
 *   **[ ] 完善平台支持 - 火山方舟 (P0)**
-    *   [ ] 实现火山方舟的 `PlatformHandler`。
-    *   [ ] 实现火山方舟的身份验证逻辑 (根据 `GETTING_STARTED.md` 和官方文档)。
+    *   [ ] 在 `platform/volcengine` 下创建 Handler 骨架。
+    *   [ ] 实现火山方舟的身份验证逻辑 (根据 `GETTING_STARTED.md` 和官方文档)，可能在 `auth` 包或 `platform/volcengine` 中。
     *   [ ] 对接火山方舟的文本生成 API，并映射到 `models.TextGenerationRequest` 和 `models.TextGenerationResponse`。
     *   [ ] 对接火山方舟的图片生成 API (如果支持)，并映射到 `models.ImageGenerationRequest` 和 `models.ImageGenerationResponse`。
     *   [ ] 对接火山方舟的向量模型 API (如果支持)，并映射到 `models.EmbeddingRequest` 和 `models.EmbeddingResponse`。
     *   [ ] 添加火山方舟相关的单元测试和集成测试（需要模拟或真实凭证）。
 *   **[ ] 完善平台支持 - 阿里百炼 (P0)**
-    *   [ ] 实现阿里百炼的 `PlatformHandler`。
-    *   [ ] 实现阿里百炼的身份验证逻辑 (根据 `GETTING_STARTED.md` 和官方文档)。
+    *   [ ] 在 `platform/alibaba` 下创建 Handler 骨架。
+    *   [ ] 实现阿里百炼的身份验证逻辑 (根据 `GETTING_STARTED.md` 和官方文档)，可能在 `auth` 包或 `platform/alibaba` 中。
     *   [ ] 对接阿里百炼的文本生成 API，并映射到 `models.TextGenerationRequest` 和 `models.TextGenerationResponse`。
     *   [ ] 对接阿里百炼的图片生成 API (如果支持)，并映射到 `models.ImageGenerationRequest` 和 `models.ImageGenerationResponse`。
     *   [ ] 对接阿里百炼的向量模型 API (如果支持)，并映射到 `models.EmbeddingRequest` 和 `models.EmbeddingResponse`。
     *   [ ] 添加阿里百炼相关的单元测试和集成测试（需要模拟或真实凭证）。
 *   **[ ] 完善文档 (P0)**
-    *   [ ] 更新 `doc/README.md` 中的安装和快速开始示例。
-    *   [ ] 更新 `doc/GETTING_STARTED.md` 中的安装步骤和完整的认证配置示例。
-    *   [ ] 补充 `doc/PLATFORMS.md` 中火山方舟和阿里百炼的关键 API 端点信息。
+    *   [ ] 更新 `doc/README.md` 中的安装和快速开始示例 (待核心功能可用后)。
+    *   [ ] 更新 `doc/GETTING_STARTED.md` 中的安装步骤和完整的认证配置示例 (待核心功能可用后)。
+    *   [ ] 补充 `doc/PLATFORMS.md` 中火山方舟和阿里百炼的关键 API 端点信息 (在平台对接过程中进行)。
     *   [ ] 为已实现的核心功能和模型类型提供代码注释。
 *   **[ ] 基础构建和测试 (P0)**
     *   [ ] 配置好 CI/CD 流程（例如 GitHub Actions），至少包含 `gofmt`, `go vet`, `go test ./...`。
@@ -70,8 +72,8 @@
     *   [ ] 调研并选择下一个要支持的 LLM 平台。
     *   [ ] 按照 `doc/CONTRIBUTING.md` 中的指南添加新平台支持。
 *   **[ ] 完善错误处理 (P2)**
-    *   [ ] 定义更细致的错误类型，方便用户判断错误来源。
-    *   [ ] 确保各平台返回的错误能够被合理地转换为通用错误。
+    *   [ ] 在代码中全面使用 `errors` 包定义的结构化错误。
+    *   [ ] 确保各平台返回的错误能够被合理地转换为通用 SDK `Error`。
 *   **[ ] 配置管理 (P2)**
     *   [ ] 考虑更灵活的配置方式，例如从环境变量、配置文件加载凭证。
 *   **[ ] 文档完善 (P2)**
@@ -83,7 +85,7 @@
 *   [ ] SDK 的版本管理策略。
 *   [ ] 异步 API 支持（如果平台提供且有需求）。
 *   [ ] 客户端级别的重试、超时机制。
-*   [ ] 更高级的日志管理（例如集成流行的日志库）。
+*   [ ] 更高级的日志管理（例如集成流行的日志库 `logrus` 或 `zap`）。
 
 ---
 
