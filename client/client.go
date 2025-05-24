@@ -120,7 +120,7 @@ func (c *Client) TextGeneration(ctx context.Context, req *models.TextGenerationR
 		c.logger.Printf("Error in TextGeneration: %v", err)
 		return nil, err // 可以返回自定义的 SDK Error
 	}
-	c.logger.Printf("Executing TextGeneration for model '%s' with prompt: \"%s...\"", req.Model, 짧게(req.Prompt, 30))
+	c.logger.Printf("Executing TextGeneration for model '%s' with prompt: \"%s...\"", req.Model, truncateForLog(req.Prompt, 30))
 	resp, err := c.handler.TextGeneration(ctx, req)
 	if err != nil {
 		c.logger.Printf("Error from platform handler in TextGeneration: %v", err)
@@ -135,7 +135,7 @@ func (c *Client) ImageGeneration(ctx context.Context, req *models.ImageGeneratio
 		c.logger.Printf("Error in ImageGeneration: %v", err)
 		return nil, err
 	}
-	c.logger.Printf("Executing ImageGeneration for model '%s' with prompt: \"%s...\"", req.Model, 짧게(req.Prompt, 30))
+	c.logger.Printf("Executing ImageGeneration for model '%s' with prompt: \"%s...\"", req.Model, truncateForLog(req.Prompt, 30))
 	resp, err := c.handler.ImageGeneration(ctx, req)
 	if err != nil {
 		c.logger.Printf("Error from platform handler in ImageGeneration: %v", err)
@@ -155,7 +155,7 @@ func (c *Client) Embedding(ctx context.Context, req *models.EmbeddingRequest) (*
 	if inputCount > 0 {
 		firstInput = req.Input[0]
 	}
-	c.logger.Printf("Executing Embedding for model '%s' with %d inputs, first input: \"%s...\"", req.Model, inputCount, 짧게(firstInput, 30))
+	c.logger.Printf("Executing Embedding for model '%s' with %d inputs, first input: \"%s...\"", req.Model, inputCount, truncateForLog(firstInput, 30))
 	resp, err := c.handler.Embedding(ctx, req)
 	if err != nil {
 		c.logger.Printf("Error from platform handler in Embedding: %v", err)
@@ -163,10 +163,14 @@ func (c *Client) Embedding(ctx context.Context, req *models.EmbeddingRequest) (*
 	return resp, err
 }
 
-// 짧게 is a helper function to truncate strings for logging (not for production use without proper rune handling)
-func 짧게(s string, maxLen int) string {
+// truncateForLog is a helper function to truncate strings for logging.
+// Note: This is a simple byte-wise truncation and may cut multi-byte characters.
+func truncateForLog(s string, maxLen int) string {
 	if len(s) > maxLen {
-		return s[:maxLen] + "..."
+		if maxLen > 3 { // Ensure "..." fits
+			return s[:maxLen-3] + "..."
+		}
+		return s[:maxLen]
 	}
 	return s
 }
