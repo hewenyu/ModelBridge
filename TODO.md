@@ -14,11 +14,25 @@
     *   [X] 创建 `auth` 包的基础结构/占位符 (例如 `auth/auth.go`)。
     *   [X] 创建 `utils` 包的基础结构/占位符 (例如 `utils/utils.go`)。
 *   **[ ] 完善平台支持 - 火山方舟 (P0)**
-    *   [ ] 在 `platform/volcengine` 下创建 Handler 骨架。
-    *   [ ] 实现火山方舟的身份验证逻辑 (根据 `GETTING_STARTED.md` 和官方文档)，可能在 `auth` 包或 `platform/volcengine` 中。
-    *   [ ] 对接火山方舟的文本生成 API，并映射到 `models.TextGenerationRequest` 和 `models.TextGenerationResponse`。
-    *   [ ] 对接火山方舟的图片生成 API (如果支持)，并映射到 `models.ImageGenerationRequest` 和 `models.ImageGenerationResponse`。
-    *   [ ] 对接火山方舟的向量模型 API (如果支持)，并映射到 `models.EmbeddingRequest` 和 `models.EmbeddingResponse`。
+    *   **[X] 在 `platform/volcengine` 下创建 Handler 骨架并重构。**
+    *   **[X] 定义火山方舟模型 ID常量 (`platform/volcengine/const.go`)。**
+    *   [ ] 实现火山方舟的身份验证逻辑 (目前使用 API Key 作为 Bearer Token，已在 `NewHandler` 中处理)。
+    *   **[X] 对接火山方舟的文本生成 API (`platform/volcengine/text_generation.go`)，并映射到 `models.TextGenerationRequest` 和 `models.TextGenerationResponse` (包括流式处理)。** (基本完成，待集成日志和完整错误处理)
+    *   [ ] 对接火山方舟的图片生成 API (使用 `platform/volcengine/image_generation.go`)，并映射到 `models.ImageGenerationRequest` 和 `models.ImageGenerationResponse`。
+        *   [ ] 定义特定于火山方舟图片生成的请求/响应结构。
+        *   [ ] 实现 API 调用逻辑，处理相关模型 (如 `ModelDoubaoSeedream30T2i`)。
+        *   [ ] 确定并使用正确的 API 端点 (定义为常量)。
+    *   [ ] 对接火山方舟的向量模型 API (使用 `platform/volcengine/embedding.go`)，并映射到 `models.EmbeddingRequest` 和 `models.EmbeddingResponse`。
+        *   [ ] 定义特定于火山方舟文本向量化的请求/响应结构。
+        *   [ ] 实现 API 调用逻辑，处理相关模型 (如 `ModelDoubaoEmbeddingLargeText240915` 等)。
+        *   [ ] 确定并使用正确的 API 端点 (定义为常量)。
+    *   [ ] 对接火山方舟的视频生成 API。
+        *   [ ] 在 `models` 中定义 `VideoGenerationRequest` / `VideoGenerationResponse` (或调研通用结构)。
+        *   [ ] 在 `PlatformHandler` 接口中添加相应方法。
+        *   [ ] 在 `platform/volcengine` 中创建 `video_generation.go` 并实现逻辑。
+        *   [ ] 定义特定于火山方舟视频生成的请求/响应结构。
+        *   [ ] 实现 API 调用逻辑，处理相关模型 (如 `ModelDoubaoSeedance10LiteT2v` 等)。
+        *   [ ] 确定并使用正确的 API 端点 (定义为常量)。
     *   [ ] 添加火山方舟相关的单元测试和集成测试（需要模拟或真实凭证）。
 *   **[ ] 完善平台支持 - 阿里百炼 (P0)**
     *   [ ] 在 `platform/alibaba` 下创建 Handler 骨架。
@@ -30,7 +44,7 @@
 *   **[ ] 完善文档 (P0)**
     *   [ ] 更新 `doc/README.md` 中的安装和快速开始示例 (待核心功能可用后)。
     *   [ ] 更新 `doc/GETTING_STARTED.md` 中的安装步骤和完整的认证配置示例 (待核心功能可用后)。
-    *   [ ] 补充 `doc/PLATFORMS.md` 中火山方舟和阿里百炼的关键 API 端点信息 (在平台对接过程中进行)。
+    *   [ ] 补充 `doc/PLATFORMS.md` 中火山方舟支持的完整模型列表（来自 `const.go`）、特性及关键 API 端点信息。
     *   [ ] 为已实现的核心功能和模型类型提供代码注释。
 *   **[ ] 基础构建和测试 (P0)**
     *   [ ] 配置好 CI/CD 流程（例如 GitHub Actions），至少包含 `gofmt`, `go vet`, `go test ./...`。
@@ -41,18 +55,16 @@
 
 *   **[ ] 完善模型类型定义 (P1)**
     *   [ ] 调研并确定以下模型类型的通用请求/响应结构，并更新 `doc/MODEL_TYPES.md`：
-        *   [ ] 多模态 (Multimodal)
+        *   [X] 多模态 (Multimodal) - (火山方舟已有视觉理解、图文向量化模型，可作为参考)
         *   [ ] 推理模型 (Inference Models) - 考虑通用性
-        *   [ ] 音频理解 (Audio Understanding) - 例如 ASR
-        *   [ ] 语音合成 (Text-to-Speech / TTS)
+        *   [ ] 音频理解 (Audio Understanding) - 例如 ASR (火山方舟有同声传译、语音识别)
+        *   [ ] 语音合成 (Text-to-Speech / TTS) (火山方舟有语音合成)
     *   [ ] 为新定义的模型类型在 `PlatformHandler` 接口中添加相应方法。
-*   **[ ] 实现流式响应 (P1)**
-    *   [ ] 为文本生成等适用场景实现流式数据传输 (`Stream: true` 的处理)。
-    *   [ ] 在平台 Handler 中实现对流式 API 的支持。
+*   **[X] 实现流式响应 (P1)** (已在火山方舟文本生成中初步实现)
 *   **[ ] 平台特定参数支持 (P1)**
     *   [ ] 确保 `PlatformSpecificParams` 能够正确传递和处理，允许用户覆盖或指定平台独有的参数。
 *   **[ ] 扩展模型支持 - 火山方舟 (P1)**
-    *   [ ] 根据 `doc/MODEL_TYPES.md` 中定义的其他模型类型，调研火山方舟是否支持，并实现对接。
+    *   [ ] 根据 `doc/MODEL_TYPES.md` 中定义的其他模型类型，调研火山方舟是否支持（如语音处理、同声传译），并实现对接。
 *   **[ ] 扩展模型支持 - 阿里百炼 (P1)**
     *   [ ] 根据 `doc/MODEL_TYPES.md` 中定义的其他模型类型，调研阿里百炼是否支持，并实现对接。
 *   **[ ] 示例代码 (P1)**
@@ -63,10 +75,9 @@
 
 *   **[ ] 进一步完善模型类型定义 (P2)**
     *   [ ] 调研并确定以下模型类型的通用请求/响应结构，并更新 `doc/MODEL_TYPES.md`：
-        *   [ ] 视频理解 (Video Understanding)
-        *   [ ] 视频生成 (Video Generation)
+        *   [ ] 视频理解 (Video Understanding) - (火山方舟已有相关模型)
         *   [ ] 图片处理 (Image Processing)
-        *   [ ] 图片理解 (Image Understanding)
+        *   [ ] 图片理解 (Image Understanding) - (火山方舟已有相关模型)
         *   [ ] 排序模型 (Ranking Models)
 *   **[ ] 支持更多平台 (P2)**
     *   [ ] 调研并选择下一个要支持的 LLM 平台。

@@ -25,7 +25,7 @@ type ImageGenerationModelID ModelID
 // Image Generation Model IDs for Volcengine
 // doubao-seedream-3-0-t2i-250415
 const (
-	ModelDoubaoSeedream30T2i TextGenerationModelID = "doubao-seedream-3-0-t2i-250415"
+	ModelDoubaoSeedream30T2i ImageGenerationModelID = "doubao-seedream-3-0-t2i-250415"
 )
 
 // 视频生成能力
